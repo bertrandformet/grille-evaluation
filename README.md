@@ -46,7 +46,7 @@ Télécharger `index.html` et l'ouvrir dans un navigateur,  aucune installation 
 
 ```
 .
-├── index.html                         # Grille interactive (page principale)
+├── index.html                    # Grille interactive (page principale)
 ├── grille_evaluation_vierge.pdf  # Version vierge imprimable
 └── README.md
 ```
