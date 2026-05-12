@@ -27,7 +27,7 @@ Chaque critère est noté de 1 (insuffisant) à 4 (très bien). La grille calcul
 - **Champs libres** : observations par section, verdict final
 - **Export .txt** : téléchargement direct de la grille renseignée
 - **Export .pdf** : génération PDF côté navigateur, sans serveur
-- **Grille vierge** : version PDF imprimable disponible dans `/docs`
+- **Grille vierge** : version PDF imprimable disponible dans les fichiers de ce dépôt
 - **Autonome** : un seul fichier HTML, aucune dépendance externe, fonctionne hors ligne
 
 ---
