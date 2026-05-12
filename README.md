@@ -2,7 +2,7 @@
 
 Outil d'évaluation interactif basé sur le cadre **Utilité / Utilisabilité / Acceptabilité** de Tricot et al. (2003).
 
-🔗 **[Accéder à la grille en ligne →](https://[votre-compte].github.io/[nom-du-repo]/)**
+🔗 **[Accéder à la grille en ligne →](https://bertrandformet.github.io/grille-evaluation/)**
 
 ---
 
