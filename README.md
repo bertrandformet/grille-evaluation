@@ -72,7 +72,4 @@ Le modèle distingue trois niveaux d'évaluation complémentaires :
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.fr) — Bertrand Formet
 
 ---
-
-## Licence
-
-[MIT](LICENSE) — libre d'utilisation, de modification et de redistribution, y compris en contexte professionnel et institutionnel.
+*Développé avec l'assistance de [Claude](https://claude.ai) (Anthropic)*
