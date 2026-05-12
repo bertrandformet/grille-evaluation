@@ -8,7 +8,7 @@ Outil d'évaluation interactif basé sur le cadre **Utilité / Utilisabilité / 
 
 ## Présentation
 
-Cette grille permet d'évaluer de façon structurée un outil numérique utilisé en contexte éducatif, selon trois dimensions issues de la recherche en EIAH (Environnements Informatiques pour l'Apprentissage Humain) :
+Cette grille permet d'évaluer de façon structurée un outil numérique utilisé en contexte éducatif, selon trois dimensions issues de la recherche en Environnements Informatiques pour l'Apprentissage Humain (EIAH) :
 
 | Dimension | Critères | Score max |
 |---|---|---|
@@ -35,17 +35,10 @@ Chaque critère est noté de 1 (insuffisant) à 4 (très bien). La grille calcul
 ## Utilisation
 
 ### En ligne
-Rendez-vous sur la page GitHub Pages du projet et utilisez la grille directement dans votre navigateur.
+Rendez-vous sur la page du projet et utilisez la grille directement dans votre navigateur.
 
 ### En local
-```bash
-git clone https://github.com/[votre-compte]/[nom-du-repo].git
-cd [nom-du-repo]
-# Ouvrir index.html dans un navigateur
-open index.html
-```
-
-Aucune installation requise.
+Télécharger `index.html` et l'ouvrir dans un navigateur,  aucune installation requise.
 
 ---
 
@@ -54,7 +47,7 @@ Aucune installation requise.
 ```
 .
 ├── index.html                         # Grille interactive (page principale)
-├── grille_evaluation_EIAH_vierge.pdf  # Version vierge imprimable
+├── grille_evaluation_vierge.pdf  # Version vierge imprimable
 └── README.md
 ```
 
@@ -74,12 +67,9 @@ Le modèle distingue trois niveaux d'évaluation complémentaires :
 
 ---
 
-## Publication sur GitHub Pages
+## Licence
 
-1. Renommer `grille_evaluation_EIAH.html` en `index.html`
-2. Pousser sur GitHub
-3. Dans *Settings → Pages*, sélectionner la branche `main` et le dossier `/ (root)`
-4. La grille est accessible à `https://[votre-compte].github.io/[nom-du-repo]/`
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.fr) — Bertrand Formet
 
 ---
 
