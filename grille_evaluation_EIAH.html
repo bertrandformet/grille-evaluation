@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Grille d'évaluation d'un outil numérique éducatif</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; padding: 30px; }
+  .page { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 1.5em; margin-bottom: 6px; color: #1a3a5c; }
+  .subtitle { text-align: center; color: #555; font-size: 0.9em; margin-bottom: 28px; }
+  .legend { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; font-size: 0.85em; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .dot-1 { background: #e74c3c; } .dot-2 { background: #e67e22; } .dot-3 { background: #d4ac0d; } .dot-4 { background: #27ae60; }
+
+  .section { margin-bottom: 22px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .section-header { padding: 14px 20px; font-size: 1.05em; font-weight: bold; color: white; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .section-header .icon { font-size: 1.3em; }
+  .tip { font-size: 0.78em; color: rgba(255,255,255,0.8); font-weight: normal; font-style: italic; margin-left: 4px; }
+  .s1 .section-header { background: #1a5276; }
+  .s2 .section-header { background: #1a7a5e; }
+  .s3 .section-header { background: #6c3483; }
+
+  .criteria-table { width: 100%; border-collapse: collapse; background: white; }
+  .criteria-table thead th { background: #eaf0f6; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 14px; text-align: left; color: #444; border-bottom: 2px solid #d0dce8; }
+  .criteria-table thead th:last-child { text-align: center; width: 190px; }
+  .criteria-table tbody tr { border-bottom: 1px solid #eee; }
+  .criteria-table tbody tr:last-child { border-bottom: none; }
+  .criteria-table td { padding: 12px 14px; vertical-align: middle; font-size: 0.9em; }
+  .criteria-table td.question { color: #222; line-height: 1.4; }
+  .criteria-table td.rating { text-align: center; }
+
+  .stars { display: flex; gap: 7px; justify-content: center; }
+  .star {
+    width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ccc;
+    cursor: pointer; transition: transform 0.15s, background 0.15s, color 0.15s, border-color 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8em; font-weight: bold; color: #aaa; user-select: none;
+  }
+  .star:hover { transform: scale(1.18); }
+  .star[data-val="1"] { border-color: #e74c3c; color: #e74c3c; }
+  .star[data-val="2"] { border-color: #e67e22; color: #e67e22; }
+  .star[data-val="3"] { border-color: #d4ac0d; color: #d4ac0d; }
+  .star[data-val="4"] { border-color: #27ae60; color: #27ae60; }
+  .star.selected[data-val="1"] { background: #e74c3c; color: white; border-color: #e74c3c; }
+  .star.selected[data-val="2"] { background: #e67e22; color: white; border-color: #e67e22; }
+  .star.selected[data-val="3"] { background: #d4ac0d; color: white; border-color: #d4ac0d; }
+  .star.selected[data-val="4"] { background: #27ae60; color: white; border-color: #27ae60; }
+
+  .notes-block { background: white; padding: 14px 20px; border-top: 2px dashed #ddd; }
+  .notes-block label { display: block; font-size: 0.85em; font-weight: bold; color: #555; margin-bottom: 6px; }
+  .notes-block textarea { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-size: 0.88em; font-family: inherit; color: #333; resize: vertical; min-height: 56px; }
+  /* Print-only lines replacing textarea */
+  .print-lines { display: none; }
+  .print-line { border-bottom: 1px solid #ddd; height: 18px; }
+
+  .summary { background: white; border-radius: 10px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 10px; }
+  .summary h2 { font-size: 1em; color: #1a3a5c; margin-bottom: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .summary-box { border-radius: 8px; padding: 14px; text-align: center; }
+  .summary-box.s1 { background: #e8f0f8; border: 1px solid #a9c4de; }
+  .summary-box.s2 { background: #e8f6f1; border: 1px solid #a9d6c4; }
+  .summary-box.s3 { background: #f2eaf8; border: 1px solid #c9a9de; }
+  .summary-box .lbl { font-size: 0.82em; font-weight: bold; color: #555; }
+  .summary-box .score { font-size: 2em; font-weight: bold; margin-top: 6px; }
+  .summary-box.s1 .score { color: #1a5276; }
+  .summary-box.s2 .score { color: #1a7a5e; }
+  .summary-box.s3 .score { color: #6c3483; }
+  .summary-box .maxlbl { font-size: 0.72em; color: #888; margin-top: 2px; }
+  .progress-wrap { margin-top: 8px; background: #e0e0e0; border-radius: 6px; height: 7px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 6px; transition: width 0.4s ease; width: 0%; }
+  .s1 .progress-bar { background: #1a5276; }
+  .s2 .progress-bar { background: #1a7a5e; }
+  .s3 .progress-bar { background: #6c3483; }
+  .total-row { display: flex; align-items: center; justify-content: space-between; background: #f0f4f8; border-radius: 8px; padding: 12px 18px; margin-bottom: 16px; border: 1px solid #d0dce8; }
+  .total-label { font-size: 0.9em; font-weight: bold; color: #1a3a5c; }
+  .total-score { font-size: 1.5em; font-weight: bold; color: #1a3a5c; white-space: nowrap; }
+  .total-bar-wrap { flex: 1; margin: 0 18px; background: #dde4ec; border-radius: 6px; height: 10px; overflow: hidden; }
+  .total-bar { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #1a5276, #1a7a5e, #6c3483); transition: width 0.4s ease; width: 0%; }
+
+  .info-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .info-field { background: white; border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+  .info-field label { display: block; font-size: 0.78em; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .info-field input { width: 100%; border: none; font-size: 0.92em; color: #222; outline: none; border-bottom: 1px solid #ddd; padding-bottom: 2px; background: transparent; }
+
+  .source-block { margin-top: 20px; padding: 14px 18px; background: #f0f4f8; border-left: 4px solid #1a3a5c; border-radius: 6px; font-size: 0.78em; color: #555; line-height: 1.6; }
+  .source-block a { color: #1a5276; }
+
+  /* ── PDF BUTTON ── */
+  .pdf-btn-wrap { text-align: center; margin-top: 28px; margin-bottom: 4px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .pdf-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    border: none; padding: 14px 28px; border-radius: 9px; font-size: 1em; font-weight: bold;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .pdf-btn:hover { transform: translateY(-2px); }
+  .pdf-btn:active { transform: translateY(0); }
+  .pdf-btn-txt { background: #2c6e49; color: white; box-shadow: 0 4px 14px rgba(44,110,73,0.28); }
+  .pdf-btn-txt:hover { background: #235a3c; box-shadow: 0 6px 18px rgba(44,110,73,0.35); }
+  .pdf-btn-pdf { background: #1a3a5c; color: white; box-shadow: 0 4px 14px rgba(26,58,92,0.28); }
+  .pdf-btn-pdf:hover { background: #15304d; box-shadow: 0 6px 18px rgba(26,58,92,0.35); }
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    @page { size: A4; margin: 11mm 11mm 13mm 11mm; }
+    body { background: white !important; padding: 0 !important; font-size: 8pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { max-width: 100%; }
+    .pdf-btn-wrap { display: none !important; }
+    .section { box-shadow: none !important; border: 1px solid #bbb; margin-bottom: 10px; page-break-inside: avoid; }
+    .summary { box-shadow: none !important; border: 1px solid #bbb; page-break-inside: avoid; }
+    .info-field { box-shadow: none !important; border: 1px solid #ccc; }
+    .notes-block textarea { display: none !important; }
+    .print-lines { display: block !important; }
+    .star, .progress-bar, .total-bar { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>🖥️ Grille d'évaluation d'un outil numérique éducatif</h1>
+  <p class="subtitle">À compléter pour chaque outil ou logiciel utilisé en classe</p>
+
+  <div class="info-row">
+    <div class="info-field"><label>Nom de l'outil</label><input type="text" id="f-outil" placeholder="ex: Quizinière, Genially…"></div>
+    <div class="info-field"><label>Discipline / Niveau</label><input type="text" id="f-discipline" placeholder="ex: Français, 4e"></div>
+    <div class="info-field"><label>Date d'évaluation</label><input type="date" id="f-date"></div>
+  </div>
+
+  <div class="legend">
+    <strong>Notation :</strong>
+    <div class="legend-item"><span class="dot dot-1"></span> 1 – Insuffisant</div>
+    <div class="legend-item"><span class="dot dot-2"></span> 2 – Passable</div>
+    <div class="legend-item"><span class="dot dot-3"></span> 3 – Satisfaisant</div>
+    <div class="legend-item"><span class="dot dot-4"></span> 4 – Très bien</div>
+  </div>
+
+  <!-- SECTION 1 : UTILITÉ -->
+  <div class="section s1">
+    <div class="section-header">
+      <span class="icon">🎯</span> UTILITÉ — L'outil fait-il vraiment apprendre ?
+      <span class="tip">Adéquation entre objectifs pédagogiques et apprentissage effectif</span>
+    </div>
+    <table class="criteria-table">
+      <thead><tr><th>Question d'évaluation</th><th>Score (cliquer)</th></tr></thead>
+      <tbody>
+        <tr><td class="question">Les objectifs d'apprentissage sont-ils clairement définis et réellement atteignables ?</td>
+          <td class="rating"><div class="stars" data-group="s1"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Le contenu et le format de l'outil sont-ils adaptés à ce que les utilisateurs doivent apprendre ?</td>
+          <td class="rating"><div class="stars" data-group="s1"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Peut-on mesurer la progression des utilisateurs (avant / après utilisation) ?</td>
+          <td class="rating"><div class="stars" data-group="s1"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">L'outil propose-t-il des activités variées (mémorisation, résolution de problèmes, production…) ?</td>
+          <td class="rating"><div class="stars" data-group="s1"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">L'outil encourage-t-il les utilisateurs à réfléchir et à s'auto-évaluer ?</td>
+          <td class="rating"><div class="stars" data-group="s1"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+      </tbody>
+    </table>
+    <div class="notes-block">
+      <label>📝 Observations / exemples concrets</label>
+      <textarea placeholder="Ce que j'ai observé, ce qui a bien fonctionné ou non…"></textarea>
+      <div class="print-lines"><div class="print-line"></div><div class="print-line"></div><div class="print-line"></div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 : UTILISABILITÉ -->
+  <div class="section s2">
+    <div class="section-header">
+      <span class="icon">🖱️</span> UTILISABILITÉ — L'outil est-il facile à utiliser ?
+      <span class="tip">Ergonomie et prise en main par les utilisateurs</span>
+    </div>
+    <table class="criteria-table">
+      <thead><tr><th>Question d'évaluation</th><th>Score (cliquer)</th></tr></thead>
+      <tbody>
+        <tr><td class="question">Les utilisateurs comprennent-ils rapidement comment utiliser l'outil sans aide ?</td>
+          <td class="rating"><div class="stars" data-group="s2"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">L'interface est-elle claire et bien organisée (menus, boutons, navigation) ?</td>
+          <td class="rating"><div class="stars" data-group="s2"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Les erreurs des utilisateurs sont-elles gérées et signalées de façon utile (feedbacks, messages clairs) ?</td>
+          <td class="rating"><div class="stars" data-group="s2"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Le temps passé sur l'outil est-il bien utilisé (pas de perte de temps, fluidité) ?</td>
+          <td class="rating"><div class="stars" data-group="s2"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">L'utilisateur a-t-il le contrôle sur les paramètres et le déroulement des activités ?</td>
+          <td class="rating"><div class="stars" data-group="s2"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Les utilisateurs semblent-ils satisfaits et à l'aise avec cet outil ?</td>
+          <td class="rating"><div class="stars" data-group="s2"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+      </tbody>
+    </table>
+    <div class="notes-block">
+      <label>📝 Observations / exemples concrets</label>
+      <textarea placeholder="Difficultés rencontrées, réactions des utilisateurs, points de blocage…"></textarea>
+      <div class="print-lines"><div class="print-line"></div><div class="print-line"></div><div class="print-line"></div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 : ACCEPTABILITÉ -->
+  <div class="section s3">
+    <div class="section-header">
+      <span class="icon">✅</span> ACCEPTABILITÉ — L'outil s'intègre-t-il bien dans le contexte scolaire ?
+      <span class="tip">Adéquation avec l'institution, les utilisateurs et les contraintes pratiques</span>
+    </div>
+    <table class="criteria-table">
+      <thead><tr><th>Question d'évaluation</th><th>Score (cliquer)</th></tr></thead>
+      <tbody>
+        <tr><td class="question">L'outil correspond-il aux attentes et aux besoins des utilisateurs (profil, niveau, motivation) ?</td>
+          <td class="rating"><div class="stars" data-group="s3"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">L'outil est-il compatible avec les valeurs et les objectifs de l'institution ?</td>
+          <td class="rating"><div class="stars" data-group="s3"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Est-il facile à intégrer dans une séance pédagogique (durée, organisation) ?</td>
+          <td class="rating"><div class="stars" data-group="s3"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Le matériel nécessaire est-il disponible pour tous les utilisateurs (ordinateurs, connexion…) ?</td>
+          <td class="rating"><div class="stars" data-group="s3"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+        <tr><td class="question">Les résultats obtenus sont-ils visibles et exploitables par l'utilisateur ?</td>
+          <td class="rating"><div class="stars" data-group="s3"><div class="star" data-val="1">1</div><div class="star" data-val="2">2</div><div class="star" data-val="3">3</div><div class="star" data-val="4">4</div></div></td></tr>
+      </tbody>
+    </table>
+    <div class="notes-block">
+      <label>📝 Observations / exemples concrets</label>
+      <textarea placeholder="Contraintes logistiques, retours des utilisateurs, adéquation au contexte de classe…"></textarea>
+      <div class="print-lines"><div class="print-line"></div><div class="print-line"></div><div class="print-line"></div></div>
+    </div>
+  </div>
+
+  <!-- RÉCAPITULATIF -->
+  <div class="summary">
+    <h2>📊 Récapitulatif &amp; Conclusion</h2>
+    <div class="total-row">
+      <span class="total-label">Score total</span>
+      <div class="total-bar-wrap"><div class="total-bar" id="total-bar"></div></div>
+      <span class="total-score"><span id="total-val">0</span> / 64</span>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-box s1">
+        <div class="lbl">🎯 Utilité</div>
+        <div class="score"><span id="score-s1">0</span> / 20</div>
+        <div class="maxlbl">5 critères × 4</div>
+        <div class="progress-wrap"><div class="progress-bar" id="bar-s1"></div></div>
+      </div>
+      <div class="summary-box s2">
+        <div class="lbl">🖱️ Utilisabilité</div>
+        <div class="score"><span id="score-s2">0</span> / 24</div>
+        <div class="maxlbl">6 critères × 4</div>
+        <div class="progress-wrap"><div class="progress-bar" id="bar-s2"></div></div>
+      </div>
+      <div class="summary-box s3">
+        <div class="lbl">✅ Acceptabilité</div>
+        <div class="score"><span id="score-s3">0</span> / 20</div>
+        <div class="maxlbl">5 critères × 4</div>
+        <div class="progress-wrap"><div class="progress-bar" id="bar-s3"></div></div>
+      </div>
+    </div>
+    <div>
+      <label style="display:block;font-size:0.85em;font-weight:bold;color:#555;margin-bottom:6px;">💬 Verdict et recommandation d'usage</label>
+      <textarea id="verdict-txt" style="width:100%;border:1px solid #ccc;border-radius:6px;padding:10px;font-size:0.88em;font-family:inherit;color:#333;min-height:70px;resize:vertical;" placeholder="Je recommande / ne recommande pas cet outil parce que… Je l'utiliserais plutôt pour… dans le contexte de…"></textarea>
+      <div class="print-lines" id="verdict-lines" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="source-block">
+    <strong>Source :</strong> Tricot, A., Plégat-Soutjis, F., Camps, J.-F., Amiel, A., Lutz, G. &amp; Morcillo, A. (2003).
+    « Utilité, utilisabilité, acceptabilité : interpréter les relations entre trois dimensions de l'évaluation des EIAH ».
+    <em>Environnements Informatiques pour l'Apprentissage Humain</em>, Strasbourg, pp. 391-402.
+    — <a href="https://edutice.hal.science/edutice-00000154" target="_blank">https://edutice.hal.science/edutice-00000154</a>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="pdf-btn-wrap">
+    <button class="pdf-btn pdf-btn-txt" onclick="downloadTXT()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Télécharger (.txt)
+    </button>
+    <button class="pdf-btn pdf-btn-pdf" onclick="downloadPDF()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h4a2 2 0 0 1 0 4H7v-4z"/><line x1="7" y1="16" x2="12" y2="16"/>
+      </svg>
+      Télécharger (.pdf)
+    </button>
+  </div>
+
+</div>
+
+<script>
+  var maxPerSection = { s1: 20, s2: 24, s3: 20 };
+
+  function getScore(group) {
+    var total = 0;
+    document.querySelectorAll('.stars[data-group="' + group + '"]').forEach(function(starsDiv) {
+      var sel = starsDiv.querySelector('.star.selected');
+      if (sel) total += parseInt(sel.dataset.val);
+    });
+    return total;
+  }
+
+  function updateScores() {
+    var grand = 0;
+    ['s1','s2','s3'].forEach(function(g) {
+      var s = getScore(g);
+      var max = maxPerSection[g];
+      document.getElementById('score-' + g).textContent = s;
+      document.getElementById('bar-' + g).style.width = (s / max * 100) + '%';
+      grand += s;
+    });
+    document.getElementById('total-val').textContent = grand;
+    document.getElementById('total-bar').style.width = (grand / 64 * 100) + '%';
+  }
+
+  document.querySelectorAll('.stars').forEach(function(starsDiv) {
+    starsDiv.querySelectorAll('.star').forEach(function(star) {
+      star.addEventListener('click', function() {
+        var wasSelected = star.classList.contains('selected');
+        starsDiv.querySelectorAll('.star').forEach(function(s) { s.classList.remove('selected'); });
+        if (!wasSelected) star.classList.add('selected');
+        updateScores();
+      });
+    });
+  });
+
+  function downloadPDF() {
+    // Pure JS PDF generator — no external deps
+    var PW=595.28, PH=841.89, ML=34, MR=34, MT=34, MB=40;
+    var CW=PW-ML-MR;
+    var pages=[], cur=null, curY=0;
+    function newPage(){ cur=[]; pages.push(cur); curY=MT; }
+    function raw(s){ cur.push(s); }
+    function checkY(h){ if(curY+h>PH-MB){ newPage(); } }
+    function h2c(h){ return [parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255]; }
+    function f2(v){ return v.toFixed(2); }
+    function setF(h){ var c=h2c(h); raw(c[0].toFixed(3)+' '+c[1].toFixed(3)+' '+c[2].toFixed(3)+' rg'); }
+    function setS(h){ var c=h2c(h); raw(c[0].toFixed(3)+' '+c[1].toFixed(3)+' '+c[2].toFixed(3)+' RG'); }
+    function pdfy(y){ return (PH-y).toFixed(2); }
+    function fRect(x,y,w,h,fc){ setF(fc); raw(f2(x)+' '+pdfy(y+h)+' '+f2(w)+' '+f2(h)+' re f'); }
+    function sRect(x,y,w,h,sc,lw){ setS(sc); raw(f2(lw||0.3)+' w '+f2(x)+' '+pdfy(y+h)+' '+f2(w)+' '+f2(h)+' re S'); }
+    function bRect(x,y,w,h,fc,sc,lw){ setF(fc); setS(sc); raw(f2(lw||0.3)+' w '+f2(x)+' '+pdfy(y+h)+' '+f2(w)+' '+f2(h)+' re B'); }
+    function circ(cx,cy,r,fc,sc){
+      var k=0.5523*r, py=PH-cy;
+      if(fc) setF(fc); if(sc) setS(sc); raw('0.5 w');
+      raw(f2(cx)+' '+f2(py+r)+' m');
+      raw(f2(cx+k)+' '+f2(py+r)+' '+f2(cx+r)+' '+f2(py+k)+' '+f2(cx+r)+' '+f2(py)+' c');
+      raw(f2(cx+r)+' '+f2(py-k)+' '+f2(cx+k)+' '+f2(py-r)+' '+f2(cx)+' '+f2(py-r)+' c');
+      raw(f2(cx-k)+' '+f2(py-r)+' '+f2(cx-r)+' '+f2(py-k)+' '+f2(cx-r)+' '+f2(py)+' c');
+      raw(f2(cx-r)+' '+f2(py+k)+' '+f2(cx-k)+' '+f2(py+r)+' '+f2(cx)+' '+f2(py+r)+' c');
+      raw(fc&&sc?'B':(fc?'f':'S'));
+    }
+    function enc(s){
+      var sub={0x2018:"'",0x2019:"'",0x201C:'"',0x201D:'"',0x2013:'-',0x2014:'-',0x2026:'...'};
+      var o=''; for(var i=0;i<s.length;i++){
+        var c=s.charCodeAt(i);
+        if(c===40) o+='\\('; else if(c===41) o+='\\)'; else if(c===92) o+='\\\\';
+        else if(c<32); else if(c<=126) o+=s[i];
+        else if(c>=160&&c<=255) o+='\\'+c.toString(8).padStart(3,'0');
+        else o+=sub[c]||'';
+      }
+      return '('+o+')';
+    }
+    function txt(s,x,y,sz,col,bold){
+      if(!s) return; setF(col);
+      raw('BT /'+(bold?'F1':'F2')+' '+sz.toFixed(1)+' Tf '+f2(x)+' '+pdfy(y)+' Td '+enc(s)+' Tj ET');
+    }
+    function wrap(s,maxW,sz){
+      var cpl=Math.floor(maxW/(sz*0.52)), words=s.split(' '), lines=[], line='';
+      words.forEach(function(w){ var t=line?line+' '+w:w; if(t.length<=cpl){line=t;}else{if(line)lines.push(line);line=w;} });
+      if(line) lines.push(line); return lines;
+    }
+    var SC=['','#e74c3c','#e67e22','#d4ac0d','#27ae60'];
+    function getRowData(group){
+      var rows=[];
+      document.querySelectorAll('.stars[data-group="'+group+'"]').forEach(function(sd){
+        var tr=sd.closest('tr'), q=tr?tr.querySelector('.question').textContent.trim():'';
+        var sel=sd.querySelector('.star.selected');
+        rows.push({q:q,val:sel?parseInt(sel.dataset.val):0});
+      });
+      return rows;
+    }
+    function getNotes(cls){
+      var sec=document.querySelector('.section.'+cls), ta=sec?sec.querySelector('textarea'):null;
+      return ta&&ta.value.trim()?ta.value.trim():'';
+    }
+    var outil=document.getElementById('f-outil').value.trim()||'-';
+    var discipline=document.getElementById('f-discipline').value.trim()||'-';
+    var date=document.getElementById('f-date').value||'-';
+    var s1v=getScore('s1'),s2v=getScore('s2'),s3v=getScore('s3'),totalV=s1v+s2v+s3v;
+    var verdict=document.getElementById('verdict-txt').value.trim();
+    var secDefs=[
+      {cls:'s1',color:'#1a5276',label:"UTILITE - L'outil fait-il vraiment apprendre ?",group:'s1',max:20,short:'Utilite',score:s1v},
+      {cls:'s2',color:'#1a7a5e',label:"UTILISABILITE - L'outil est-il facile a utiliser ?",group:'s2',max:24,short:'Utilisabilite',score:s2v},
+      {cls:'s3',color:'#6c3483',label:"ACCEPTABILITE - L'outil s'integre-t-il bien ?",group:'s3',max:20,short:'Acceptabilite',score:s3v}
+    ];
+    // Draw
+    newPage();
+    fRect(ML,curY,CW,13,'#1a3a5c');
+    txt("Grille d'evaluation d'un outil numerique educatif",ML+5,curY+9.5,10,'#ffffff',true);
+    curY+=15;
+    var fw=(CW-4)/3;
+    [['Outil',outil],['Discipline / Niveau',discipline],['Date',date]].forEach(function(f,i){
+      var bx=ML+i*(fw+2);
+      bRect(bx,curY,fw,12,'#f8f8f8','#cccccc',0.3);
+      txt(f[0].toUpperCase(),bx+2,curY+5,6,'#888888',true);
+      txt(f[1].substring(0,28),bx+2,curY+10.5,8,'#222222',false);
+    });
+    curY+=15;
+    secDefs.forEach(function(sec){
+      var rows=getRowData(sec.group), notes=getNotes(sec.cls);
+      checkY(10+7+rows.length*11+(notes?12:0)+8);
+      fRect(ML,curY,CW,9,sec.color);
+      txt(sec.label,ML+3,curY+6.5,8.5,'#ffffff',true);
+      curY+=10;
+      fRect(ML,curY,CW,6,'#eaf0f6'); sRect(ML,curY,CW,6,'#d0dce8',0.3);
+      txt("CRITERE D'EVALUATION",ML+2,curY+4.5,6.5,'#444444',true);
+      txt('SCORE',ML+CW-22,curY+4.5,6.5,'#444444',true);
+      curY+=6;
+      rows.forEach(function(row){
+        var ql=wrap(row.q,CW-38,7.5), rh=Math.max(10,ql.length*5.2+3);
+        checkY(rh);
+        fRect(ML,curY,CW,rh,'#ffffff'); sRect(ML,curY,CW,rh,'#eeeeee',0.2);
+        var ry=curY;
+        ql.forEach(function(ln,li){ txt(ln,ML+2,ry+5.5+li*5.2,7.5,'#222222',false); });
+        var midY=curY+rh/2;
+        for(var n=1;n<=4;n++){
+          var cx=ML+CW-34+(n-1)*8.5, sel=row.val===n;
+          circ(cx,midY,3.2,sel?SC[n]:null,sel?null:SC[n]);
+          txt(String(n),cx-1.5,midY+2.2,6,sel?'#ffffff':SC[n],true);
+        }
+        curY+=rh;
+      });
+      if(notes){
+        var nl=wrap('Obs.: '+notes,CW-6,7.5), nh=nl.length*5+5;
+        checkY(nh);
+        bRect(ML,curY,CW,nh,'#fafafa','#dddddd',0.2);
+        nl.forEach(function(ln,li){ txt(ln,ML+3,curY+5.5+li*5,7.5,'#333333',false); });
+        curY+=nh;
+      }
+      checkY(7);
+      fRect(ML,curY,CW,6,'#f5f5f5'); sRect(ML,curY,CW,6,'#dddddd',0.2);
+      txt('Sous-score '+sec.short+': '+sec.score+' / '+sec.max,ML+CW-70,curY+4.5,8,sec.color,true);
+      curY+=8;
+    });
+    // Summary
+    checkY(70);
+    fRect(ML,curY,CW,9,'#1a3a5c');
+    txt('RECAPITULATIF & CONCLUSION',ML+3,curY+6.5,9,'#ffffff',true);
+    curY+=11;
+    var bw=(CW-4)/3, bh=22;
+    var bd=[{l:'Utilite',v:s1v,m:20,c:'#1a5276',bg:'#e8f0f8'},
+            {l:'Utilisabilite',v:s2v,m:24,c:'#1a7a5e',bg:'#e8f6f1'},
+            {l:'Acceptabilite',v:s3v,m:20,c:'#6c3483',bg:'#f2eaf8'}];
+    bd.forEach(function(b,i){
+      var bx=ML+i*(bw+2);
+      bRect(bx,curY,bw,bh,b.bg,'#cccccc',0.3);
+      txt(b.l,bx+4,curY+7,7.5,'#555555',false);
+      txt(b.v+' / '+b.m,bx+4,curY+17,13,b.c,true);
+      fRect(bx+3,curY+bh-5,bw-6,2.5,'#e0e0e0');
+      if(b.v>0) fRect(bx+3,curY+bh-5,(bw-6)*b.v/b.m,2.5,b.c);
+    });
+    curY+=bh+4;
+    checkY(12);
+    bRect(ML,curY,CW,10,'#f0f4f8','#d0dce8',0.3);
+    txt('Score total :',ML+3,curY+7,9,'#1a3a5c',true);
+    txt(String(totalV)+' / 64',ML+CW-28,curY+7,10,'#1a3a5c',true);
+    fRect(ML+42,curY+3.5,CW-70,3,'#dde4ec');
+    if(totalV>0) fRect(ML+42,curY+3.5,(CW-70)*totalV/64,3,'#1a5276');
+    curY+=14;
+    if(verdict){
+      checkY(10); txt('Verdict & recommandation :',ML,curY+6,8,'#555555',true); curY+=8;
+      var vl=wrap(verdict,CW-4,8);
+      vl.forEach(function(ln){ checkY(7); txt(ln,ML,curY+5.5,8,'#222222',false); curY+=5.5; });
+      curY+=3;
+    }
+    curY+=4; checkY(14);
+    setS('#cccccc'); raw('0.3 w '+f2(ML)+' '+pdfy(curY)+' m '+f2(ML+CW)+' '+pdfy(curY)+' l S');
+    curY+=4;
+    txt('Source: Tricot et al. (2003). Utilite, utilisabilite, acceptabilite. EIAH 2003, pp.391-402',ML,curY+4,6,'#888888',false);
+    curY+=5;
+    txt('https://edutice.hal.science/edutice-00000154',ML,curY+4,6,'#888888',false);
+    // Build PDF
+    var parts=[], bl=0, off={};
+    function emit(s){ parts.push(s); bl+=s.length; }
+    function addO(ref,content){ off[ref]=bl; emit(ref+' 0 obj\n'+content+'\nendobj\n'); }
+    var nPages=pages.length;
+    // refs: 1=catalog,2=pages,3=fontB,4=fontN, then per page: content=5+pi*2, page=6+pi*2
+    var pageRefs=[], contRefs=[];
+    for(var pi=0;pi<nPages;pi++){ contRefs.push(5+pi*2); pageRefs.push(6+pi*2); }
+    emit('%PDF-1.4\n');
+    addO(1,'<< /Type /Catalog /Pages 2 0 R >>');
+    var kids=pageRefs.map(function(r){return r+' 0 R';}).join(' ');
+    addO(2,'<< /Type /Pages /Kids ['+kids+'] /Count '+nPages+' >>');
+    addO(3,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    addO(4,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    var res='<< /Font << /F1 3 0 R /F2 4 0 R >> >>';
+    pages.forEach(function(cmds,pi){
+      var stream=cmds.join('\n');
+      addO(contRefs[pi],'<< /Length '+stream.length+' >>\nstream\n'+stream+'\nendstream');
+      addO(pageRefs[pi],'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+PW.toFixed(2)+' '+PH.toFixed(2)+'] /Contents '+contRefs[pi]+' 0 R /Resources '+res+' >>');
+    });
+    var xrefOff=bl, nObj=5+nPages*2;
+    var xref='xref\n0 '+nObj+'\n0000000000 65535 f \n';
+    for(var i=1;i<nObj;i++) xref+=(off[i]||0).toString().padStart(10,'0')+' 00000 n \n';
+    emit(xref);
+    emit('trailer\n<< /Size '+nObj+' /Root 1 0 R >>\nstartxref\n'+xrefOff+'\n%%EOF\n');
+    var pdfStr=parts.join('');
+    var bytes=new Uint8Array(pdfStr.length);
+    for(var bi=0;bi<pdfStr.length;bi++) bytes[bi]=pdfStr.charCodeAt(bi)&0xff;
+    var blob=new Blob([bytes],{type:'application/octet-stream'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download=(outil!=='-'?'Evaluation_'+outil.replace(/\s+/g,'_'):'Grille_evaluation_EIAH')+'.pdf';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+
+  function downloadTXT() {
+    var lines = [];
+    var sep = '='.repeat(60);
+    var sep2 = '-'.repeat(60);
+
+    lines.push(sep);
+    lines.push('GRILLE D\'ÉVALUATION D\'UN OUTIL NUMÉRIQUE ÉDUCATIF');
+    lines.push(sep);
+
+    var outil     = document.getElementById('f-outil').value.trim()     || '—';
+    var discipline= document.getElementById('f-discipline').value.trim() || '—';
+    var date      = document.getElementById('f-date').value             || '—';
+    lines.push('Outil       : ' + outil);
+    lines.push('Discipline  : ' + discipline);
+    lines.push('Date        : ' + date);
+    lines.push('');
+
+    var sections = [
+      { id: 's1', title: '1. UTILITÉ — L\'outil fait-il vraiment apprendre ?', max: 20 },
+      { id: 's2', title: '2. UTILISABILITÉ — L\'outil est-il facile à utiliser ?', max: 24 },
+      { id: 's3', title: '3. ACCEPTABILITÉ — L\'outil s\'intègre-t-il bien ?', max: 20 }
+    ];
+
+    sections.forEach(function(sec, si) {
+      lines.push(sep2);
+      lines.push(sec.title);
+      lines.push(sep2);
+
+      var groups = document.querySelectorAll('.stars[data-group="' + sec.id + '"]');
+      var total = 0;
+      groups.forEach(function(starsDiv, i) {
+        var row = starsDiv.closest('tr');
+        var question = row ? row.querySelector('.question').textContent.trim() : '';
+        var sel = starsDiv.querySelector('.star.selected');
+        var val = sel ? sel.dataset.val : '—';
+        if (sel) total += parseInt(sel.dataset.val);
+        lines.push('  ' + (i+1) + '. ' + question);
+        lines.push('     Score : ' + val + ' / 4');
+        lines.push('');
+      });
+
+      // Notes textarea for this section
+      var sectionEl = document.querySelector('.section.' + sec.id);
+      var ta = sectionEl ? sectionEl.querySelector('textarea') : null;
+      var notes = ta && ta.value.trim() ? ta.value.trim() : '(aucune observation)';
+      lines.push('  Observations : ' + notes);
+      lines.push('');
+      lines.push('  SOUS-SCORE ' + sec.title.split('—')[0].trim() + ' : ' + total + ' / ' + sec.max);
+      lines.push('');
+    });
+
+    lines.push(sep);
+    lines.push('RÉCAPITULATIF');
+    lines.push(sep);
+    lines.push('  Utilité        : ' + document.getElementById('score-s1').textContent + ' / 20');
+    lines.push('  Utilisabilité  : ' + document.getElementById('score-s2').textContent + ' / 24');
+    lines.push('  Acceptabilité  : ' + document.getElementById('score-s3').textContent + ' / 20');
+    lines.push('  SCORE TOTAL    : ' + document.getElementById('total-val').textContent + ' / 64');
+    lines.push('');
+
+    var verdict = document.getElementById('verdict-txt').value.trim() || '(aucun verdict saisi)';
+    lines.push('Verdict & recommandation :');
+    lines.push(verdict);
+    lines.push('');
+    lines.push(sep);
+    lines.push('Source : Tricot et al. (2003) — https://edutice.hal.science/edutice-00000154');
+    lines.push(sep);
+
+    var content = lines.join('\n');
+    var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (outil !== '—' ? 'Evaluation_' + outil.replace(/\s+/g,'_') : 'Grille_evaluation_EIAH') + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>
