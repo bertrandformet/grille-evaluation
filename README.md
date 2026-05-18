@@ -17,7 +17,7 @@ Cette grille permet d'évaluer de façon structurée un outil numérique utilis�
 | ✅ **Acceptabilité** | L'outil s'intègre-t-il bien dans le contexte scolaire ? | 20 pts |
 | | **Total** | **64 pts** |
 
-Chaque critère est noté de 1 (insuffisant) à 4 (très bien). La grille calcule les scores en temps réel et permet d'exporter la trace d'évaluation.
+Chaque critère est noté de 1 (insuffisant) à 4 (très bien). Le score de 4, sans score médian, oblige le positionnement. La grille calcule les scores en temps réel et permet d'exporter la trace d'évaluation.
 
 ---
 
